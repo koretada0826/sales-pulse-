@@ -1,0 +1,74 @@
+{
+  "name": "sales-pulse",
+  "version": "0.1.0",
+  "description": "営業会社向け アポ獲得リアルタイム通知デスクトップアプリ",
+  "main": "electron/main.cjs",
+  "author": "Sales Pulse Team",
+  "license": "UNLICENSED",
+  "private": true,
+  "scripts": {
+    "dev:vite": "vite",
+    "dev:electron": "wait-on http://localhost:5273 && cross-env NODE_ENV=development electron .",
+    "dev": "concurrently -k -n VITE,ELECTRON -c blue,magenta \"npm:dev:vite\" \"npm:dev:electron\"",
+    "build:vite": "vite build",
+    "build": "npm run build:vite && electron-builder",
+    "build:mac": "npm run build:vite && electron-builder --mac",
+    "build:win": "npm run build:vite && electron-builder --win",
+    "preview": "vite preview"
+  },
+  "build": {
+    "appId": "com.salespulse.app",
+    "productName": "Sales Pulse",
+    "asar": true,
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "build/**/*",
+      "package.json"
+    ],
+    "mac": {
+      "category": "public.app-category.business",
+      "target": [
+        { "target": "dmg", "arch": ["x64", "arm64"] }
+      ],
+      "icon": "build/icon.png"
+    },
+    "win": {
+      "target": [
+        { "target": "nsis", "arch": ["x64"] }
+      ],
+      "icon": "build/icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true
+    }
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.4",
+    "auto-launch": "^5.0.6",
+    "electron-store": "^8.2.0",
+    "keytar": "^7.9.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.26.2"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.10",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "autoprefixer": "^10.4.20",
+    "concurrently": "^9.0.1",
+    "cross-env": "^7.0.3",
+    "electron": "^32.1.2",
+    "electron-builder": "^25.0.5",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.13",
+    "vite": "^5.4.8",
+    "wait-on": "^8.0.1"
+  }
+}

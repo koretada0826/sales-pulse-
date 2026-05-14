@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #root { height: 100%; }
+body {
+  font-family: 'Inter', 'Hiragino Sans', 'Noto Sans JP', system-ui, sans-serif;
+  background: radial-gradient(1200px 600px at 10% -10%, rgba(59,130,246,0.18), transparent 60%),
+              radial-gradient(900px 500px at 110% 0%, rgba(139,92,246,0.18), transparent 55%),
+              #0b0f19;
+  color: #e5e7eb;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ボタン強調 */
+.btn-pulse {
+  position: relative;
+  isolation: isolate;
+}
+.btn-pulse::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #3b82f6, #8b5cf6, #f5b301, #3b82f6);
+  background-size: 300% 100%;
+  filter: blur(14px);
+  opacity: .55;
+  z-index: -1;
+  animation: pulse-bg 5s linear infinite;
+}
+@keyframes pulse-bg {
+  to { background-position: 300% 0; }
+}
+
+/* トースト */
+.toast-in { animation: toast-in .25s ease-out; }
+@keyframes toast-in {
+  from { transform: translateY(-12px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* スクロールバー */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background: #374151; border-radius: 8px; }
