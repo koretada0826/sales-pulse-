@@ -18,7 +18,11 @@ contextBridge.exposeInMainWorld('salesPulse', {
   app: {
     platform: () => ipcRenderer.invoke('app:platform'),
     version: () => ipcRenderer.invoke('app:version'),
-    openExternal: (url) => ipcRenderer.invoke('app:openExternal', url)
+    openExternal: (url) => ipcRenderer.invoke('app:openExternal', url),
+    configureSupabase: (cfg) => ipcRenderer.invoke('app:configure-supabase', cfg)
+  },
+  auth: {
+    setState: (state) => ipcRenderer.invoke('auth:state', state)
   },
   on: (channel, listener) => {
     const allowed = ['request-logout'];

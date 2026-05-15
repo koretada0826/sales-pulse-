@@ -404,6 +404,76 @@ end;
 $$;
 
 -- ============================================================
+-- RPC: 浮きボタン用 ワンクリック即発火（B-1 爆速モード）
+-- 詳細は (未入力) で登録し、即通知を発火する
+-- ============================================================
+create or replace function sp_quick_appointment(p_token text)
+returns jsonb
+language plpgsql security definer
+set search_path = public
+as $$
+declare
+  v_session_res jsonb;
+  v_user users%rowtype;
+  v_appt appointments%rowtype;
+  v_today_user_count int;
+  v_today_team_count int;
+  v_team_name text;
+  v_title text;
+  v_body text;
+begin
+  v_session_res := sp_verify_session(p_token);
+  if (v_session_res->>'ok')::boolean is not true then
+    return v_session_res;
+  end if;
+
+  select * into v_user from users where id = (v_session_res->'user'->>'id')::uuid;
+
+  insert into appointments(user_id, team_id, company_name, appointment_datetime, product_name, status)
+    values (v_user.id, v_user.team_id, '(未入力)', now(), '(未入力)', 'active')
+    returning * into v_appt;
+
+  select count(*) into v_today_user_count from appointments
+    where user_id = v_user.id and status = 'active'
+      and (created_at at time zone 'Asia/Tokyo')::date
+          = (now() at time zone 'Asia/Tokyo')::date;
+
+  if v_user.team_id is not null then
+    select t.name into v_team_name from teams t where t.id = v_user.team_id;
+    select count(*) into v_today_team_count from appointments
+      where team_id = v_user.team_id and status = 'active'
+        and (created_at at time zone 'Asia/Tokyo')::date
+            = (now() at time zone 'Asia/Tokyo')::date;
+  else
+    v_team_name := '';
+    v_today_team_count := 0;
+  end if;
+
+  v_title := '🎉 ' || v_user.display_name || 'さんが1アポ獲得しました！';
+  v_body := '本日' || v_today_user_count || '件目'
+            || case when v_user.team_id is not null
+                    then ' / ' || coalesce(v_team_name,'') || '合計' || v_today_team_count || '件'
+                    else '' end;
+
+  insert into notifications(type, title, body, appointment_id, sender_user_id, target_scope, target_team_id)
+    values ('appointment_created', v_title, v_body, v_appt.id, v_user.id, 'all', v_user.team_id);
+
+  insert into audit_logs(actor_user_id, action, target_type, target_id, metadata)
+    values (v_user.id, 'appointment_create_quick', 'appointment', v_appt.id,
+            jsonb_build_object('mode', 'quick'));
+
+  return jsonb_build_object(
+    'ok', true,
+    'appointment_id', v_appt.id,
+    'today_user_count', v_today_user_count,
+    'today_team_count', v_today_team_count
+  );
+end;
+$$;
+
+grant execute on function sp_quick_appointment(text) to anon, authenticated;
+
+-- ============================================================
 -- RPC: admin: create user
 -- ============================================================
 create or replace function sp_admin_create_user(

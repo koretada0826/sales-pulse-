@@ -26,7 +26,7 @@ export default function Settings() {
   const { push } = useToast();
   const { logout } = useAuth();
   const nav = useNavigate();
-  const [s, setS] = useState({ notificationsEnabled: true, soundEnabled: true, autoLaunch: true });
+  const [s, setS] = useState({ notificationsEnabled: true, soundEnabled: true, autoLaunch: true, floatingButtonEnabled: true });
 
   const [oldPw, setOldPw] = useState('');
   const [newPw, setNewPw] = useState('');
@@ -57,6 +57,9 @@ export default function Settings() {
           checked={s.notificationsEnabled} onChange={(v)=>set({ notificationsEnabled: v })}/>
         <Toggle label="通知音を鳴らす" hint="OS通知の音をON/OFFします"
           checked={s.soundEnabled} onChange={(v)=>set({ soundEnabled: v })}/>
+        <Toggle label="画面に浮く「＋アポ獲得」ボタンを表示"
+          hint="他のアプリ作業中でも画面隅に小さな＋ボタンが浮きます。1クリックで即通知（会社名等は後から追記）"
+          checked={s.floatingButtonEnabled} onChange={(v)=>set({ floatingButtonEnabled: v })}/>
         <Toggle label="PC起動時に自動起動" hint="PCを起動するとSales Pulseが裏で立ち上がります"
           checked={s.autoLaunch} onChange={(v)=>set({ autoLaunch: v })}/>
       </div>

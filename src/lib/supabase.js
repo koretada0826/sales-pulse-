@@ -14,3 +14,8 @@ export const supabase = createClient(url || 'https://invalid.supabase.co', anon 
 });
 
 export const hasSupabaseConfig = Boolean(url && anon);
+
+// Electronのmainプロセス側（浮きボタン）にも接続情報を渡す
+if (typeof window !== 'undefined' && window.salesPulse?.app?.configureSupabase && url && anon) {
+  window.salesPulse.app.configureSupabase({ url, anonKey: anon }).catch(() => {});
+}

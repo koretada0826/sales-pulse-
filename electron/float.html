@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sales Pulse 浮きボタン</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 100%; height: 100%;
+    background: transparent;
+    overflow: hidden;
+    -webkit-user-select: none;
+    user-select: none;
+    font-family: -apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif;
+  }
+  /* ウィンドウ全体をドラッグ可能に（ボタンだけ no-drag） */
+  .wrap {
+    width: 100vw; height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: flex-start;
+    position: relative;
+    padding-top: 4px;
+    -webkit-app-region: drag;
+    cursor: move;
+  }
+  .who {
+    -webkit-app-region: drag;
+    font-size: 11px;
+    font-weight: 700;
+    color: white;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.85), 0 0 10px rgba(245,179,1,0.55);
+    letter-spacing: 0.4px;
+    padding: 2px 8px;
+    background: rgba(11,15,25,0.55);
+    border-radius: 8px;
+    backdrop-filter: blur(4px);
+    margin-bottom: 4px;
+    max-width: 160px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: center;
+  }
+  /* 周りに広がる光る輪 */
+  .halo {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 130px; height: 130px;
+    margin: -65px 0 0 -65px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(245,179,1,0.55), rgba(139,92,246,0.0) 70%);
+    animation: halo-pulse 1.8s ease-out infinite;
+    pointer-events: none;
+    z-index: 0;
+  }
+  @keyframes halo-pulse {
+    0%   { transform: scale(0.8); opacity: 0.9; }
+    100% { transform: scale(1.8); opacity: 0; }
+  }
+  .btn {
+    -webkit-app-region: no-drag;
+    position: relative;
+    z-index: 1;
+    width: 130px; height: 130px;
+    border-radius: 50%;
+    border: 4px solid #f5b301;
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    box-shadow:
+      0 14px 36px rgba(139,92,246,0.70),
+      0 0 0 6px rgba(245,179,1,0.22),
+      inset 0 -8px 18px rgba(0,0,0,0.18);
+    color: white;
+    font-size: 22px;
+    font-weight: 800;
+    line-height: 1.15;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    text-align: center;
+    transition: transform .12s ease, box-shadow .25s ease, background .25s ease;
+    outline: none;
+    animation: btn-bob 2.2s ease-in-out infinite;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.35);
+    padding: 0 8px;
+    margin-top: 4px;
+  }
+  @keyframes btn-bob {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-4px); }
+  }
+  .btn:hover {
+    transform: scale(1.08);
+    box-shadow: 0 18px 44px rgba(139,92,246,0.85), 0 0 0 8px rgba(245,179,1,0.35);
+  }
+  .btn:active { transform: scale(0.93); }
+  .btn.flash-ok {
+    background: linear-gradient(135deg, #10b981, #059669);
+    box-shadow: 0 18px 44px rgba(16,185,129,0.8);
+    animation: pop .35s ease-out;
+  }
+  .btn.flash-ng {
+    background: linear-gradient(135deg, #ef4444, #b91c1c);
+    box-shadow: 0 18px 44px rgba(239,68,68,0.8);
+  }
+  .btn.disabled { opacity: .5; cursor: not-allowed; animation: none; }
+  @keyframes pop {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.25); }
+    100% { transform: scale(1); }
+  }
+  .label {
+    -webkit-app-region: drag;
+    margin-top: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    color: white;
+    text-shadow: 0 2px 6px rgba(0,0,0,0.85), 0 0 14px rgba(245,179,1,0.6);
+    pointer-events: none;
+    letter-spacing: 0.5px;
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="who" id="who">…</div>
+    <div class="halo"></div>
+    <button class="btn" id="fire" aria-label="アポ獲得を即通知">アポ<br>獲得！</button>
+    <div class="label">ドラッグで移動</div>
+  </div>
+<script>
+  const btn = document.getElementById('fire');
+  const who = document.getElementById('who');
+  let cooldown = false;
+  const IDLE_HTML = 'アポ<br>獲得！';
+
+  async function refreshUser() {
+    try {
+      const name = await window.floatApi.getUserName();
+      who.textContent = name ? `${name} さん` : '未ログイン';
+    } catch { who.textContent = '?'; }
+  }
+
+  async function fire() {
+    if (cooldown) return;
+    cooldown = true;
+    btn.classList.add('disabled');
+    btn.innerHTML = '送信中…';
+    try {
+      const res = await window.floatApi.quickFire();
+      if (res && res.ok) {
+        btn.classList.remove('disabled');
+        btn.classList.add('flash-ok');
+        btn.innerHTML = '獲得！<br>🎉';
+      } else {
+        btn.classList.remove('disabled');
+        btn.classList.add('flash-ng');
+        btn.innerHTML = 'エラー';
+        console.warn('quick-fire failed:', res);
+      }
+    } catch (e) {
+      btn.classList.remove('disabled');
+      btn.classList.add('flash-ng');
+      btn.innerHTML = 'エラー';
+      console.error(e);
+    } finally {
+      setTimeout(() => {
+        btn.classList.remove('flash-ok', 'flash-ng');
+        btn.innerHTML = IDLE_HTML;
+        cooldown = false;
+      }, 1400);
+    }
+  }
+
+  btn.addEventListener('click', fire);
+  btn.addEventListener('dblclick', (e) => e.preventDefault());
+
+  refreshUser();
+  // ユーザー変更時に更新
+  window.floatApi.onUserChanged?.((name) => {
+    who.textContent = name ? `${name} さん` : '未ログイン';
+  });
+</script>
+</body>
+</html>

@@ -24,6 +24,14 @@ export function AuthProvider({ children }) {
 
   useEffect(() => { refresh(); }, [refresh]);
 
+  // ログイン状態をElectron mainプロセスに同期（浮きボタンの表示制御に使用）
+  useEffect(() => {
+    ipc.auth?.setState?.({
+      loggedIn: !!user,
+      displayName: user?.display_name || ''
+    }).catch?.(() => {});
+  }, [user]);
+
   // タスクトレイからログアウト要求
   useEffect(() => {
     const off = ipc.on('request-logout', async () => {

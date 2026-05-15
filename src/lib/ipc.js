@@ -24,7 +24,11 @@ const fallback = {
   app: {
     platform: async () => navigator.platform,
     version: async () => '0.0.0-web',
-    openExternal: async (u) => window.open(u, '_blank')
+    openExternal: async (u) => window.open(u, '_blank'),
+    configureSupabase: async () => false
+  },
+  auth: {
+    setState: async () => true
   },
   on: () => () => {}
 };

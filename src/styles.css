@@ -40,6 +40,20 @@ body {
   to { transform: translateY(0); opacity: 1; }
 }
 
+/* お祝いバナー（ドロップダウン式） */
+.celebrate-banner { position: relative; overflow: hidden; }
+.celebrate-banner::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,0.22) 50%, transparent 70%);
+  transform: translateX(-100%);
+  animation: shimmer 2.4s ease-out 0.25s 1;
+  pointer-events: none;
+}
+@keyframes shimmer {
+  to { transform: translateX(100%); }
+}
+
 /* スクロールバー */
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-thumb { background: #374151; border-radius: 8px; }
