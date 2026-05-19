@@ -42,6 +42,32 @@
     white-space: nowrap;
     text-align: center;
   }
+  /* 左上の×（閉じる）ボタン */
+  .close-x {
+    -webkit-app-region: no-drag;
+    position: absolute;
+    top: 6px; left: 6px;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(11,15,25,0.7);
+    color: white;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+    opacity: 0.6;
+    transition: opacity .15s ease, background .15s ease, transform .12s ease;
+    z-index: 2;
+    padding: 0;
+  }
+  .close-x:hover {
+    opacity: 1;
+    background: #ef4444;
+    transform: scale(1.15);
+  }
   /* 周りに広がる光る輪 */
   .halo {
     position: absolute;
@@ -122,6 +148,7 @@
 </head>
 <body>
   <div class="wrap">
+    <button class="close-x" id="close" title="非表示にする（設定からまた表示できます）">✕</button>
     <div class="who" id="who">…</div>
     <div class="halo"></div>
     <button class="btn" id="fire" aria-label="アポ獲得を即通知">アポ<br>獲得！</button>
@@ -173,6 +200,10 @@
 
   btn.addEventListener('click', fire);
   btn.addEventListener('dblclick', (e) => e.preventDefault());
+
+  document.getElementById('close').addEventListener('click', () => {
+    window.floatApi.dismiss?.();
+  });
 
   refreshUser();
   // ユーザー変更時に更新

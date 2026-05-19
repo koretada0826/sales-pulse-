@@ -346,6 +346,14 @@ ipcMain.handle('auth:state', async (_e, state) => {
 
 ipcMain.handle('float:get-user-name', async () => currentUserName);
 
+// 浮きボタンの×から呼ばれる：設定をOFFにして閉じる（再表示は設定 or トレイから）
+ipcMain.handle('float:dismiss', async () => {
+  store.set('floatingButtonEnabled', false);
+  applyFloatVisibility();
+  refreshTrayMenu();
+  return true;
+});
+
 // 浮きボタンから即発火
 ipcMain.handle('appointment:quick-fire', async () => {
   if (!supabaseConfig) return { ok: false, error: 'not_configured' };
