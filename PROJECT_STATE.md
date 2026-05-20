@@ -1,9 +1,16 @@
 # Sales Pulse — プロジェクト状態スナップショット
 
-> 最終更新: 2026-05-15
+> 最終更新: 2026-05-20
 > このファイルは「次回続きから再開する」ための申し送りです。
+> **「続きから」と言われたら、まずこのファイルを読み込むこと。**
 
-## 🆕 直近の変更（2026-05-15）
+## 🆕 直近の変更（2026-05-20）
+- **浮きボタンに「✕（非表示）」ボタンを追加**: 浮きボタン左上に小さな ✕ を配置。クリックすると設定が OFF になり浮きボタンが消える。再表示は **設定ページ** または **タスクトレイ／メニューバーのメニュー** から ON にする。
+  - 変更ファイル: `electron/float.html` / `electron/main.cjs` / `electron/preload-float.cjs`
+  - 新IPC: `float:dismiss`（main側で `store.set('floatingButtonEnabled', false)` → `applyFloatVisibility()` → `refreshTrayMenu()`）
+  - コミット: `558d741`（GitHubへプッシュ済み ✅）
+
+## 🗒 1つ前の変更（2026-05-15）
 - **音が鳴らない問題を修正**: ブラウザの自動再生制限が原因だった。最初のクリック/キー操作で AudioContext を解錠する処理を `useRealtime.jsx` に追加。
 - **通知音をリッチに**: チャイム（鐘）＋アルペジオ（C-E-G-C↑）＋仕上げのディン、に変更。
 - **ドロップダウン式お祝いバナー追加**: `src/components/CelebrateBanner.jsx`。他人がアポ獲得すると上から大バナーがスッと降りてくる（4秒で消える）。
@@ -12,8 +19,14 @@
   - 位置はドラッグで変更可、`electron-store` の `floatPos` に保存。
   - main側で `fetch` を使うため Supabase URL/anonKey をレンダラからIPC `app:configure-supabase` で渡している。
 
-## ⚠️ 次回開発前にやること
+## ⚠️ 次回開発前にやること（最優先）
 **Supabase ダッシュボードで `supabase/schema.sql` の `sp_quick_appointment` を実行する**（CREATE OR REPLACE なので既存への影響なし）。これをやらないと浮きボタンを押した時に `http_404` エラーになる。
+
+## 📌 リポジトリ状態（2026-05-20 時点）
+- ブランチ: `main`
+- 最新コミット: `558d741 feat: 浮きボタンに×（非表示）ボタンを追加`
+- リモート: `origin/main` と完全に同期済み（push 完了）
+- 未コミットの変更: なし（working tree clean）
 
 ---
 
